@@ -1,2 +1,4 @@
 # RepRap-Safety
 Safety cutoff for RepRap 3D printers
+
+USE AT YOUR OWN RISK, ABSOLUTELY NO WARRANTY EXPRESSED OR IMPLIED
