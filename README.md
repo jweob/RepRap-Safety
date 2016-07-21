@@ -21,4 +21,4 @@ Turns off the power supply to a RepRap using a relay if any of the following thr
 2. Bed heat signal is on for more than a set period of time
 3. Hot end is on for more than a set period of time
 
-More information at jweoblog.com
+More information at http://jweoblog.com/?p=835
