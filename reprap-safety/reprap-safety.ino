@@ -38,8 +38,12 @@ Turns off the power supply to a RepRap using a relay if any of the following thr
 #define OVERSAMPLENR 16 // 2^n where n is the additional bits of precision required
 #define OVERSAMPLES 256 // 4^n where n is the additional bits of precision required
 
+#define MINPOS 650 // Analog pins on bed positive power supply and overall power supply will shut off if read below this value
+#define MAXNEG 50 // Analog pins on bed negative power supply will shut off if read below this value
+
 #define PGM_RD_W(x)   (short)pgm_read_word(&x) // Macro for reading the thermistor table
 #define heater_ttbllen_map (sizeof(temptable)/sizeof(*temptable))
+
 
 
 unsigned long raw = 0; // Holds the output of the oversample function
@@ -65,6 +69,9 @@ int oldState = OK;
 
 // Pin definitions
 int extThermPin = 0; // Output from the potential divider circuit which includes the thermistor
+int bedHeatPosPin = 2; // Bed heater positive pin, scaled down using a potential divider
+int bedHeatNegPin = 3; // Bed heater negative pin, scaled down using a potential divider
+int powerPin = 4; // Power supply, scaled down using a potential divider
 int relayPin = 8; // Pin attached to relay driver circuit. Low signal activates relay and turns on printer
 int goodLedPin = 9; // Green LED to indicate printer in "OK" state
 int badLedPin = 10; // Red LED to indicate something printer in "PROBLEM" state
@@ -229,16 +236,31 @@ void loop()
       previousExtOn = false;
     }
   }
+  
+  // Check for sparking on bed
+  if(analogRead(bedHeatPosPin) < MINPOS || analogRead( bedHeatNegPin) > MAXNEG) {
+    Serial.println("Bed voltage problem");
+    Serial.print("Bed pos voltage of ");
+    Serial.print(analogRead(bedHeatPosPin));
+    Serial.println();
 
+    Serial.print("Bed neg voltage of ");
+    Serial.print(analogRead(bedHeatNegPin));
+    Serial.println();
+
+    Serial.print("Power supply voltage of ");
+    Serial.print(analogRead(powerPin));
+    Serial.println();
+    currentState = PROBLEM;
+  
+  }
+    
   
   // If the state has changed, update the pins
   if (currentState != oldState){
     updatePins();
     oldState = currentState;
   }
-
-  // Perform these checks once a second
-  delay( 1000 );
 }
 
 static unsigned long oversample(int pin){
