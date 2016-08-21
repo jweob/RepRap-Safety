@@ -1,0 +1,6 @@
+#1/bin/bash
+echo "Safety logging active"
+echo "Safety logger Pi switched on at: " >> /home/pi/safety_log.txt
+date '+%A %D %X' >> /home/pi/safety_log.txt
+echo "" >> /home/pi/safety_log.txt
+cat /dev/ttyACM0 >> /home/pi/safety_log.txt
