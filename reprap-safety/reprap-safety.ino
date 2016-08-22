@@ -76,6 +76,7 @@ enum printerStates {
 // Current and previous states
 int currentState = OK;
 int oldState = OK;
+int problemType = 0;
 
 // Pin definitions
 int extThermPin = 0; // Output from the potential divider circuit which includes the thermistor
@@ -93,193 +94,193 @@ int exNegPin = 7; // When the heater is on the negative pin is driven to ground
 // Function signatures
 static unsigned long oversample(int pin); // Oversamples an analog pin to get better precision
 static float analog2temp(unsigned long raw); // Converts the reading from the oversample function into degrees celsius
-void updatePins(); // Updates the relay and LED indicator pins based on the current state of the printer
+
 
 // Thermistor table. This table is setup for the Extruder thermistor: Digikey 480-3137-ND which should be included in All Huxleys shipped after 25/2/14
 // Table was generated using the RepRapPro Formula
 const short temptable[][2] PROGMEM = {
   {
-    23*OVERSAMPLENR,    341        }
+    23*OVERSAMPLENR,    341          }
   ,
   {
-    25*OVERSAMPLENR,    333        }
+    25*OVERSAMPLENR,    333          }
   ,
   {
-    27*OVERSAMPLENR,    325        }
+    27*OVERSAMPLENR,    325          }
   ,
   {
-    28*OVERSAMPLENR,    322        }
+    28*OVERSAMPLENR,    322          }
   ,
   {
-    31*OVERSAMPLENR,    313        }
+    31*OVERSAMPLENR,    313          }
   ,
   {
-    33*OVERSAMPLENR,    307        }
+    33*OVERSAMPLENR,    307          }
   ,
   {
-    35*OVERSAMPLENR,    302        }
+    35*OVERSAMPLENR,    302          }
   ,
   {
-    38*OVERSAMPLENR,    295        }
+    38*OVERSAMPLENR,    295          }
   ,
   {
-    41*OVERSAMPLENR,    288        }
+    41*OVERSAMPLENR,    288          }
   ,
   {
-    44*OVERSAMPLENR,    282        }
+    44*OVERSAMPLENR,    282          }
   ,
   {
-    48*OVERSAMPLENR,    275        }
+    48*OVERSAMPLENR,    275          }
   ,
   {
-    52*OVERSAMPLENR,    269        }
+    52*OVERSAMPLENR,    269          }
   ,
   {
-    56*OVERSAMPLENR,    264        }
+    56*OVERSAMPLENR,    264          }
   ,
   {
-    61*OVERSAMPLENR,    257        }
+    61*OVERSAMPLENR,    257          }
   ,
   {
-    66*OVERSAMPLENR,    251        }
+    66*OVERSAMPLENR,    251          }
   ,
   {
-    71*OVERSAMPLENR,    246        }
+    71*OVERSAMPLENR,    246          }
   ,
   {
-    78*OVERSAMPLENR,    239        }
+    78*OVERSAMPLENR,    239          }
   ,
   {
-    84*OVERSAMPLENR,    233        }
+    84*OVERSAMPLENR,    233          }
   ,
   {
-    92*OVERSAMPLENR,    227        }
+    92*OVERSAMPLENR,    227          }
   ,
   {
-    100*OVERSAMPLENR,    221        }
+    100*OVERSAMPLENR,    221          }
   ,
   {
-    109*OVERSAMPLENR,    216        }
+    109*OVERSAMPLENR,    216          }
   ,
   {
-    120*OVERSAMPLENR,    209        }
+    120*OVERSAMPLENR,    209          }
   ,
   {
-    131*OVERSAMPLENR,    203        }
+    131*OVERSAMPLENR,    203          }
   ,
   {
-    143*OVERSAMPLENR,    198        }
+    143*OVERSAMPLENR,    198          }
   ,
   {
-    156*OVERSAMPLENR,    192        }
+    156*OVERSAMPLENR,    192          }
   ,
   {
-    171*OVERSAMPLENR,    186        }
+    171*OVERSAMPLENR,    186          }
   ,
   {
-    187*OVERSAMPLENR,    180        }
+    187*OVERSAMPLENR,    180          }
   ,
   {
-    205*OVERSAMPLENR,    174        }
+    205*OVERSAMPLENR,    174          }
   ,
   {
-    224*OVERSAMPLENR,    169        }
+    224*OVERSAMPLENR,    169          }
   ,
   {
-    245*OVERSAMPLENR,    163        }
+    245*OVERSAMPLENR,    163          }
   ,
   {
-    268*OVERSAMPLENR,    157        }
+    268*OVERSAMPLENR,    157          }
   ,
   {
-    293*OVERSAMPLENR,    152        }
+    293*OVERSAMPLENR,    152          }
   ,
   {
-    320*OVERSAMPLENR,    146        }
+    320*OVERSAMPLENR,    146          }
   ,
   {
-    348*OVERSAMPLENR,    141        }
+    348*OVERSAMPLENR,    141          }
   ,
   {
-    379*OVERSAMPLENR,    135        }
+    379*OVERSAMPLENR,    135          }
   ,
   {
-    411*OVERSAMPLENR,    129        }
+    411*OVERSAMPLENR,    129          }
   ,
   {
-    445*OVERSAMPLENR,    124        }
+    445*OVERSAMPLENR,    124          }
   ,
   {
-    480*OVERSAMPLENR,    118        }
+    480*OVERSAMPLENR,    118          }
   ,
   {
-    516*OVERSAMPLENR,    113        }
+    516*OVERSAMPLENR,    113          }
   ,
   {
-    553*OVERSAMPLENR,    108        }
+    553*OVERSAMPLENR,    108          }
   ,
   {
-    591*OVERSAMPLENR,    102        }
+    591*OVERSAMPLENR,    102          }
   ,
   {
-    628*OVERSAMPLENR,     97        }
+    628*OVERSAMPLENR,     97          }
   ,
   {
-    665*OVERSAMPLENR,     92        }
+    665*OVERSAMPLENR,     92          }
   ,
   {
-    702*OVERSAMPLENR,     86        }
+    702*OVERSAMPLENR,     86          }
   ,
   {
-    737*OVERSAMPLENR,     81        }
+    737*OVERSAMPLENR,     81          }
   ,
   {
-    770*OVERSAMPLENR,     76        }
+    770*OVERSAMPLENR,     76          }
   ,
   {
-    801*OVERSAMPLENR,     71        }
+    801*OVERSAMPLENR,     71          }
   ,
   {
-    830*OVERSAMPLENR,     65        }
+    830*OVERSAMPLENR,     65          }
   ,
   {
-    857*OVERSAMPLENR,     60        }
+    857*OVERSAMPLENR,     60          }
   ,
   {
-    881*OVERSAMPLENR,     55        }
+    881*OVERSAMPLENR,     55          }
   ,
   {
-    903*OVERSAMPLENR,     50        }
+    903*OVERSAMPLENR,     50          }
   ,
   {
-    922*OVERSAMPLENR,     45        }
+    922*OVERSAMPLENR,     45          }
   ,
   {
-    939*OVERSAMPLENR,     40        }
+    939*OVERSAMPLENR,     40          }
   ,
   {
-    954*OVERSAMPLENR,     35        }
+    954*OVERSAMPLENR,     35          }
   ,
   {
-    966*OVERSAMPLENR,     30        }
+    966*OVERSAMPLENR,     30          }
   ,
   {
-    977*OVERSAMPLENR,     25        }
+    977*OVERSAMPLENR,     25          }
   ,
   {
-    985*OVERSAMPLENR,     21        }
+    985*OVERSAMPLENR,     21          }
   ,
   {
-    993*OVERSAMPLENR,     16        }
+    993*OVERSAMPLENR,     16          }
   ,
   {
-    999*OVERSAMPLENR,     11        }
+    999*OVERSAMPLENR,     11          }
   ,
   {
-    1004*OVERSAMPLENR,      6        }
+    1004*OVERSAMPLENR,      6          }
   ,
   {
-    1008*OVERSAMPLENR,      0        }
+    1008*OVERSAMPLENR,      0          }
 };
 
 
@@ -318,12 +319,14 @@ void loop()
       Serial.print(celsius);
       Serial.print(" degC. Switching off.");
       currentState = PROBLEM;
+      problemType = 1;
     }
 
     // Check for open or closed circuits
     if(celsius < OPEN_CIRCUIT_TEMP){
       Serial.println("Short or open circuit. Switching off.");
       currentState = PROBLEM;
+      problemType = 1;
     }
 
     // Check whether bed has been on too long
@@ -335,6 +338,7 @@ void loop()
           Serial.print(bedOnForMillis);
           Serial.println("ms). Switiching off.");
           currentState = PROBLEM;
+          problemType = 2;
         }
       }
       else {
@@ -358,6 +362,7 @@ void loop()
           Serial.print(extOnForMillis);
           Serial.println("ms). Switiching off");
           currentState = PROBLEM;
+          problemType = 3;
         }
       }
       else {
@@ -376,8 +381,8 @@ void loop()
     bedPosVolt = analogRead(bedHeatPosPin) * VOLTCONVERT;
     bedNegVolt = analogRead(bedHeatNegPin) * VOLTCONVERT;
     // Check for sparking on bed
-    if(bedPosVolt < MINPOSVOLT || bedNegVolt > MAXNEGVOLT) {
-      Serial.println("Bed voltage problem");
+    if(bedPosVolt < MINPOSVOLT) {
+      Serial.println("Bed positive voltage problem");
       Serial.print("Bed pos voltage of ");
       Serial.print(bedPosVolt);
       Serial.print("V; Bed neg voltage of ");
@@ -386,8 +391,24 @@ void loop()
       Serial.print(powerVolt);
       Serial.println("V. Switching Off");
       currentState = PROBLEM;
+      problemType = 4;
 
     }
+    
+        if(bedNegVolt > MAXNEGVOLT) {
+      Serial.println("Bed negative voltage problem");
+      Serial.print("Bed pos voltage of ");
+      Serial.print(bedPosVolt);
+      Serial.print("V; Bed neg voltage of ");
+      Serial.print(bedNegVolt);
+      Serial.print("V; Power supply voltage of ");
+      Serial.print(powerVolt);
+      Serial.println("V. Switching Off");
+      currentState = PROBLEM;
+      problemType = 5;
+
+    }
+
 
     if ((currentMillis - prevLogMillis) > LOGINTERVAL) {
       Serial.print("OK with time @ ");
@@ -425,8 +446,34 @@ void loop()
 
   // If the state has changed, update the pins
   if (currentState != oldState){
-    updatePins();
+
+    switch (currentState) {
+    case OK:
+      digitalWrite(goodLedPin, HIGH);
+      digitalWrite(badLedPin, LOW);
+      digitalWrite(relayPin, LOW);
+      break;
+    case PROBLEM:
+      digitalWrite(goodLedPin, LOW);
+      digitalWrite(relayPin, HIGH);
+      break;
+    default: 
+      digitalWrite(goodLedPin, LOW);
+      digitalWrite(relayPin, HIGH);
+      break;
+    }
     oldState = currentState;
+  }
+  
+  if (currentState == PROBLEM) {
+     for (int rep = 0; rep < problemType; rep++){
+         digitalWrite(badLedPin, HIGH);
+         delay(200);
+         digitalWrite(badLedPin, LOW);
+         delay(500);
+     }
+     delay(1000);
+     
   }
 }
 
@@ -470,26 +517,8 @@ static float analog2temp(unsigned long raw) {
 
 }
 
-void updatePins() {
-  switch (currentState) {
-  case OK:
-    digitalWrite(goodLedPin, HIGH);
-    digitalWrite(badLedPin, LOW);
-    digitalWrite(relayPin, LOW);
-    break;
-  case PROBLEM:
-    digitalWrite(goodLedPin, LOW);
-    digitalWrite(badLedPin, HIGH);
-    digitalWrite(relayPin, HIGH);
-    break;
-  default: 
-    digitalWrite(goodLedPin, LOW);
-    digitalWrite(badLedPin, HIGH);
-    digitalWrite(relayPin, HIGH);
 
-    break;
-  }
-}
+
 
 
 
