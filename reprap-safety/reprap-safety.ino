@@ -301,7 +301,12 @@ void setup()
   pinMode(bedSignalPin, INPUT);
   pinMode(exPosPin, INPUT);
   pinMode(exNegPin, INPUT);
-  updatePins();
+  
+  // Initial setup of output pins
+  digitalWrite(goodLedPin, HIGH);
+  digitalWrite(badLedPin, LOW);
+  digitalWrite(relayPin, LOW);
+  
   delay( 100 ); // Give voltage on the A0 pin time to settle
 }
 
