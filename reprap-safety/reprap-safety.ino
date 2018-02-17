@@ -399,6 +399,7 @@ void loop()
       problemType = 4;
 
     }
+    /*
     
         if(bedNegVolt > MAXNEGVOLT) {
       Serial.println("Bed negative voltage problem");
@@ -413,6 +414,7 @@ void loop()
       problemType = 5;
 
     }
+    */
 
 
     if ((currentMillis - prevLogMillis) > LOGINTERVAL) {
