@@ -1,29 +1,29 @@
 /*
-RepRap safety cutoff
- Copyright John O'Brien 2016
- jweob@cantab.net 2016-07-16
- 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>
- 
- 
- Turns off the power supply to a RepRap using a relay if any of the following three conditions are met
- 1. Secondary thermistor reads a temperature above a set threshold
- 2. Bed heat signal is on for more than a set period of time
- 3. Hote end is on for more than a set period of time
- 
- 
- */
+  RepRap safety cutoff
+  Copyright John O'Brien 2016
+  jweob@cantab.net 2016-07-16
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>
+
+
+  Turns off the power supply to a RepRap using a relay if any of the following three conditions are met
+  1. Secondary thermistor reads a temperature above a set threshold
+  2. Bed heat signal is on for more than a set period of time
+  3. Hote end is on for more than a set period of time
+
+
+*/
 
 #include <avr/pgmspace.h>
 
@@ -80,9 +80,9 @@ int problemType = 0;
 
 // Pin definitions
 int extThermPin = 0; // Output from the potential divider circuit which includes the thermistor
-int bedHeatPosPin = 2; // Bed heater positive pin, scaled down using a potential divider
-int bedHeatNegPin = 3; // Bed heater negative pin, scaled down using a potential divider
-int powerPin = 4; // Power supply, scaled down using a potential divider
+int bedHeatPosPin = 4; // Bed heater positive pin, scaled down using a potential divider
+int bedHeatNegPin = 2; // Bed heater negative pin, scaled down using a potential divider
+int powerPin = 5; // Power supply, scaled down using a potential divider
 int relayPin = 8; // Pin attached to relay driver circuit. Low signal activates relay and turns on printer
 int goodLedPin = 9; // Green LED to indicate printer in "OK" state
 int badLedPin = 10; // Red LED to indicate something printer in "PROBLEM" state
@@ -100,187 +100,248 @@ static float analog2temp(unsigned long raw); // Converts the reading from the ov
 // Table was generated using the RepRapPro Formula
 const short temptable[][2] PROGMEM = {
   {
-    23*OVERSAMPLENR,    341          }
+    23 * OVERSAMPLENR,    341
+  }
   ,
   {
-    25*OVERSAMPLENR,    333          }
+    25 * OVERSAMPLENR,    333
+  }
   ,
   {
-    27*OVERSAMPLENR,    325          }
+    27 * OVERSAMPLENR,    325
+  }
   ,
   {
-    28*OVERSAMPLENR,    322          }
+    28 * OVERSAMPLENR,    322
+  }
   ,
   {
-    31*OVERSAMPLENR,    313          }
+    31 * OVERSAMPLENR,    313
+  }
   ,
   {
-    33*OVERSAMPLENR,    307          }
+    33 * OVERSAMPLENR,    307
+  }
   ,
   {
-    35*OVERSAMPLENR,    302          }
+    35 * OVERSAMPLENR,    302
+  }
   ,
   {
-    38*OVERSAMPLENR,    295          }
+    38 * OVERSAMPLENR,    295
+  }
   ,
   {
-    41*OVERSAMPLENR,    288          }
+    41 * OVERSAMPLENR,    288
+  }
   ,
   {
-    44*OVERSAMPLENR,    282          }
+    44 * OVERSAMPLENR,    282
+  }
   ,
   {
-    48*OVERSAMPLENR,    275          }
+    48 * OVERSAMPLENR,    275
+  }
   ,
   {
-    52*OVERSAMPLENR,    269          }
+    52 * OVERSAMPLENR,    269
+  }
   ,
   {
-    56*OVERSAMPLENR,    264          }
+    56 * OVERSAMPLENR,    264
+  }
   ,
   {
-    61*OVERSAMPLENR,    257          }
+    61 * OVERSAMPLENR,    257
+  }
   ,
   {
-    66*OVERSAMPLENR,    251          }
+    66 * OVERSAMPLENR,    251
+  }
   ,
   {
-    71*OVERSAMPLENR,    246          }
+    71 * OVERSAMPLENR,    246
+  }
   ,
   {
-    78*OVERSAMPLENR,    239          }
+    78 * OVERSAMPLENR,    239
+  }
   ,
   {
-    84*OVERSAMPLENR,    233          }
+    84 * OVERSAMPLENR,    233
+  }
   ,
   {
-    92*OVERSAMPLENR,    227          }
+    92 * OVERSAMPLENR,    227
+  }
   ,
   {
-    100*OVERSAMPLENR,    221          }
+    100 * OVERSAMPLENR,    221
+  }
   ,
   {
-    109*OVERSAMPLENR,    216          }
+    109 * OVERSAMPLENR,    216
+  }
   ,
   {
-    120*OVERSAMPLENR,    209          }
+    120 * OVERSAMPLENR,    209
+  }
   ,
   {
-    131*OVERSAMPLENR,    203          }
+    131 * OVERSAMPLENR,    203
+  }
   ,
   {
-    143*OVERSAMPLENR,    198          }
+    143 * OVERSAMPLENR,    198
+  }
   ,
   {
-    156*OVERSAMPLENR,    192          }
+    156 * OVERSAMPLENR,    192
+  }
   ,
   {
-    171*OVERSAMPLENR,    186          }
+    171 * OVERSAMPLENR,    186
+  }
   ,
   {
-    187*OVERSAMPLENR,    180          }
+    187 * OVERSAMPLENR,    180
+  }
   ,
   {
-    205*OVERSAMPLENR,    174          }
+    205 * OVERSAMPLENR,    174
+  }
   ,
   {
-    224*OVERSAMPLENR,    169          }
+    224 * OVERSAMPLENR,    169
+  }
   ,
   {
-    245*OVERSAMPLENR,    163          }
+    245 * OVERSAMPLENR,    163
+  }
   ,
   {
-    268*OVERSAMPLENR,    157          }
+    268 * OVERSAMPLENR,    157
+  }
   ,
   {
-    293*OVERSAMPLENR,    152          }
+    293 * OVERSAMPLENR,    152
+  }
   ,
   {
-    320*OVERSAMPLENR,    146          }
+    320 * OVERSAMPLENR,    146
+  }
   ,
   {
-    348*OVERSAMPLENR,    141          }
+    348 * OVERSAMPLENR,    141
+  }
   ,
   {
-    379*OVERSAMPLENR,    135          }
+    379 * OVERSAMPLENR,    135
+  }
   ,
   {
-    411*OVERSAMPLENR,    129          }
+    411 * OVERSAMPLENR,    129
+  }
   ,
   {
-    445*OVERSAMPLENR,    124          }
+    445 * OVERSAMPLENR,    124
+  }
   ,
   {
-    480*OVERSAMPLENR,    118          }
+    480 * OVERSAMPLENR,    118
+  }
   ,
   {
-    516*OVERSAMPLENR,    113          }
+    516 * OVERSAMPLENR,    113
+  }
   ,
   {
-    553*OVERSAMPLENR,    108          }
+    553 * OVERSAMPLENR,    108
+  }
   ,
   {
-    591*OVERSAMPLENR,    102          }
+    591 * OVERSAMPLENR,    102
+  }
   ,
   {
-    628*OVERSAMPLENR,     97          }
+    628 * OVERSAMPLENR,     97
+  }
   ,
   {
-    665*OVERSAMPLENR,     92          }
+    665 * OVERSAMPLENR,     92
+  }
   ,
   {
-    702*OVERSAMPLENR,     86          }
+    702 * OVERSAMPLENR,     86
+  }
   ,
   {
-    737*OVERSAMPLENR,     81          }
+    737 * OVERSAMPLENR,     81
+  }
   ,
   {
-    770*OVERSAMPLENR,     76          }
+    770 * OVERSAMPLENR,     76
+  }
   ,
   {
-    801*OVERSAMPLENR,     71          }
+    801 * OVERSAMPLENR,     71
+  }
   ,
   {
-    830*OVERSAMPLENR,     65          }
+    830 * OVERSAMPLENR,     65
+  }
   ,
   {
-    857*OVERSAMPLENR,     60          }
+    857 * OVERSAMPLENR,     60
+  }
   ,
   {
-    881*OVERSAMPLENR,     55          }
+    881 * OVERSAMPLENR,     55
+  }
   ,
   {
-    903*OVERSAMPLENR,     50          }
+    903 * OVERSAMPLENR,     50
+  }
   ,
   {
-    922*OVERSAMPLENR,     45          }
+    922 * OVERSAMPLENR,     45
+  }
   ,
   {
-    939*OVERSAMPLENR,     40          }
+    939 * OVERSAMPLENR,     40
+  }
   ,
   {
-    954*OVERSAMPLENR,     35          }
+    954 * OVERSAMPLENR,     35
+  }
   ,
   {
-    966*OVERSAMPLENR,     30          }
+    966 * OVERSAMPLENR,     30
+  }
   ,
   {
-    977*OVERSAMPLENR,     25          }
+    977 * OVERSAMPLENR,     25
+  }
   ,
   {
-    985*OVERSAMPLENR,     21          }
+    985 * OVERSAMPLENR,     21
+  }
   ,
   {
-    993*OVERSAMPLENR,     16          }
+    993 * OVERSAMPLENR,     16
+  }
   ,
   {
-    999*OVERSAMPLENR,     11          }
+    999 * OVERSAMPLENR,     11
+  }
   ,
   {
-    1004*OVERSAMPLENR,      6          }
+    1004 * OVERSAMPLENR,      6
+  }
   ,
   {
-    1008*OVERSAMPLENR,      0          }
+    1008 * OVERSAMPLENR,      0
+  }
 };
 
 
@@ -290,7 +351,7 @@ short (*tt)[][2] = (short (*)[][2])(temptable);
 void setup()
 {
   Serial.begin(9600);
-  while(!Serial);
+  while (!Serial);
   Serial.println();
   Serial.println();
   Serial.println();
@@ -301,25 +362,25 @@ void setup()
   pinMode(bedSignalPin, INPUT);
   pinMode(exPosPin, INPUT);
   pinMode(exNegPin, INPUT);
-  
+
   // Initial setup of output pins
   digitalWrite(goodLedPin, HIGH);
   digitalWrite(badLedPin, LOW);
   digitalWrite(relayPin, LOW);
-  
-  delay( 100 ); // Give voltage on the A0 pin time to settle
+
+  delay( 1000 ); // Give voltage on the A0 pin time to settle
 }
 
 
 void loop()
 {
-  if (currentState == OK){
+  if (currentState == OK) {
     currentMillis = millis(); // Get current time
     raw = oversample(extThermPin);    // read the input pin
-    celsius = analog2temp(raw);  
+    celsius = analog2temp(raw);
 
     // Check for overtemperature
-    if(celsius > tempThresh){
+    if (celsius > tempThresh) {
       Serial.print("Temperature exceeded with temp of ");
       Serial.print(celsius);
       Serial.print(" degC. Switching off.");
@@ -328,14 +389,14 @@ void loop()
     }
 
     // Check for open or closed circuits
-    if(celsius < OPEN_CIRCUIT_TEMP){
+    if (celsius < OPEN_CIRCUIT_TEMP) {
       Serial.println("Short or open circuit. Switching off.");
       currentState = PROBLEM;
       problemType = 1;
     }
 
     // Check whether bed has been on too long
-    if (digitalRead(bedSignalPin)==HIGH){  
+    if (digitalRead(bedSignalPin) == HIGH) {
       bedOnForMillis = currentMillis - bedStartMillis;
       if (previousBedOn) {
         if (bedOnForMillis > bedInterval) {
@@ -352,14 +413,14 @@ void loop()
       }
     }
     else {
-      if (previousBedOn){
+      if (previousBedOn) {
         bedStartMillis = 0;
         previousBedOn = false;
       }
     }
 
     // Check if hotend has been on too long
-    if (digitalRead(exPosPin)== HIGH && digitalRead(exNegPin)== LOW){  
+    if (digitalRead(exPosPin) == HIGH && digitalRead(exNegPin) == LOW) {
       extOnForMillis = currentMillis - extStartMillis;
       if (previousExtOn) {
         if (extOnForMillis > extInterval) {
@@ -376,7 +437,7 @@ void loop()
       }
     }
     else {
-      if (previousExtOn){
+      if (previousExtOn) {
         extOnForMillis = 0;
         previousExtOn = false;
       }
@@ -386,7 +447,7 @@ void loop()
     bedPosVolt = analogRead(bedHeatPosPin) * VOLTCONVERT;
     bedNegVolt = analogRead(bedHeatNegPin) * VOLTCONVERT;
     // Check for sparking on bed
-    if(bedPosVolt < MINPOSVOLT) {
+    if (bedPosVolt < MINPOSVOLT) {
       Serial.println("Bed positive voltage problem");
       Serial.print("Bed pos voltage of ");
       Serial.print(bedPosVolt);
@@ -400,7 +461,7 @@ void loop()
 
     }
     /*
-    
+
         if(bedNegVolt > MAXNEGVOLT) {
       Serial.println("Bed negative voltage problem");
       Serial.print("Bed pos voltage of ");
@@ -413,7 +474,7 @@ void loop()
       currentState = PROBLEM;
       problemType = 5;
 
-    }
+      }
     */
 
 
@@ -423,7 +484,7 @@ void loop()
       Serial.print("ms. Hotend @ ");
       Serial.print(celsius);
       Serial.print("C; ");
-      if(previousExtOn){
+      if (previousExtOn) {
         Serial.print("Hotend on for ");
         Serial.print(extOnForMillis);
         Serial.print("ms; ");
@@ -431,7 +492,7 @@ void loop()
       else {
         Serial.print("Hotend off; ");
       }
-      if(previousBedOn){
+      if (previousBedOn) {
         Serial.print("Bed on for ");
         Serial.print(bedOnForMillis);
         Serial.print("ms; ");
@@ -452,44 +513,44 @@ void loop()
   }
 
   // If the state has changed, update the pins
-  if (currentState != oldState){
+  if (currentState != oldState) {
 
     switch (currentState) {
-    case OK:
-      digitalWrite(goodLedPin, HIGH);
-      digitalWrite(badLedPin, LOW);
-      digitalWrite(relayPin, LOW);
-      break;
-    case PROBLEM:
-      digitalWrite(goodLedPin, LOW);
-      digitalWrite(relayPin, HIGH);
-      break;
-    default: 
-      digitalWrite(goodLedPin, LOW);
-      digitalWrite(relayPin, HIGH);
-      break;
+      case OK:
+        digitalWrite(goodLedPin, HIGH);
+        digitalWrite(badLedPin, LOW);
+        digitalWrite(relayPin, LOW);
+        break;
+      case PROBLEM:
+        digitalWrite(goodLedPin, LOW);
+        digitalWrite(relayPin, HIGH);
+        break;
+      default:
+        digitalWrite(goodLedPin, LOW);
+        digitalWrite(relayPin, HIGH);
+        break;
     }
     oldState = currentState;
   }
-  
+
   if (currentState == PROBLEM) {
-     for (int rep = 0; rep < problemType; rep++){
-         digitalWrite(badLedPin, HIGH);
-         delay(200);
-         digitalWrite(badLedPin, LOW);
-         delay(500);
-     }
-     delay(1000);
-     
+    for (int rep = 0; rep < problemType; rep++) {
+      digitalWrite(badLedPin, HIGH);
+      delay(200);
+      digitalWrite(badLedPin, LOW);
+      delay(500);
+    }
+    delay(1000);
+
   }
 }
 
-static unsigned long oversample(int pin){
+static unsigned long oversample(int pin) {
   // Oversampling concepts from http://www.electricrcaircraftguy.com/2014/05/using-arduino-unos-built-in-16-bit-adc.html and http://www.atmel.com/Images/doc8003.pdf
   int i = 0;
   unsigned long acc = 0;
   // Read the thermistor muiltiple times and accumulate the result
-  for (i=0; i<OVERSAMPLES; i++)
+  for (i = 0; i < OVERSAMPLES; i++)
   {
     acc += analogRead(pin);
   }
@@ -505,20 +566,20 @@ static float analog2temp(unsigned long raw) {
   int i;
 
 
-  for (i=1; i<heater_ttbllen_map; i++)
+  for (i = 1; i < heater_ttbllen_map; i++)
   {
     if (PGM_RD_W((*tt)[i][0]) > raw)
     {
-      celsius = PGM_RD_W((*tt)[i-1][1]) + 
-        (raw - PGM_RD_W((*tt)[i-1][0])) * 
-        (float)(PGM_RD_W((*tt)[i][1]) - PGM_RD_W((*tt)[i-1][1])) /
-        (float)(PGM_RD_W((*tt)[i][0]) - PGM_RD_W((*tt)[i-1][0]));
+      celsius = PGM_RD_W((*tt)[i - 1][1]) +
+                (raw - PGM_RD_W((*tt)[i - 1][0])) *
+                (float)(PGM_RD_W((*tt)[i][1]) - PGM_RD_W((*tt)[i - 1][1])) /
+                (float)(PGM_RD_W((*tt)[i][0]) - PGM_RD_W((*tt)[i - 1][0]));
       break;
     }
   }
 
   // Overflow: Set to last value in the table
-  if (i == heater_ttbllen_map) celsius = PGM_RD_W((*tt)[i-1][1]);
+  if (i == heater_ttbllen_map) celsius = PGM_RD_W((*tt)[i - 1][1]);
 
   return celsius;
 
